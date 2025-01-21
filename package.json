@@ -23,6 +23,6 @@
     "helius-sdk": "^1.4.1"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": "18.x"
   }
 }
