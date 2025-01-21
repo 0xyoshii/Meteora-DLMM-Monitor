@@ -10,7 +10,10 @@
   },
   "dependencies": {
     "@solana/web3.js": "^1.98.0",
+    "arconnect": "^1.0.4",
+    "arweave": "^1.15.5",
     "dotenv": "^16.4.7",
+    "fastestsmallesttextencoderdecoder": "^1.0.22",
     "helius-sdk": "^1.4.1",
     "typescript": "^5.7.3"
   },
