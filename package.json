@@ -21,8 +21,5 @@
     "@solana/web3.js": "^1.98.0",
     "dotenv": "^16.4.7",
     "helius-sdk": "^1.4.1"
-  },
-  "engines": {
-    "node": "18.x"
   }
 }
