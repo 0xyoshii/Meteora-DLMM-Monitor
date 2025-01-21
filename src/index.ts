@@ -2,6 +2,7 @@ import { Helius } from "helius-sdk";
 import dotenv from 'dotenv';
 import { Connection, PublicKey } from '@solana/web3.js';
 import { sendDiscordWebhook } from "./webhook";
+import express from 'express';
 
 dotenv.config();
 
@@ -19,6 +20,13 @@ if (missing.length) {
 const programId = new PublicKey("LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo");
 const helius = new Helius(process.env.HELIUS_API_KEY!);
 const connection = new Connection(process.env.HELIUS_HTTP_URL!, {wsEndpoint: process.env.HELIUS_WSS_URL!});
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+app.get('/health', (req, res) => {
+  res.status(200).send('OK');
+});
 
 async function parseTx(signature: string) {
   try {
@@ -92,6 +100,10 @@ async function main() {
 main().catch(error => {
   log(`Fatal error: ${error}`);
   process.exit(1);
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
 
 
