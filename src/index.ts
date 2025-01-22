@@ -28,23 +28,49 @@ app.get('/health', (req, res) => {
   res.status(200).send('OK');
 });
 
+async function isLbPair(token: string) {
+  const data = await connection.getAccountInfo(new PublicKey(token));
+  return data?.owner.toString() === "LBUZKhRxPF3XUpBCjp4YzTKgLccjZhTSDM9YuVaPwxo";
+}
+
 async function parseTx(signature: string) {
   try {
-    const response = await connection.getTransaction(signature);
-    if (!response?.transaction?.message.accountKeys) {
+    const response = await connection.getTransaction(signature, { maxSupportedTransactionVersion: 0 });
+    
+    if (!response?.transaction?.message.staticAccountKeys) {
       throw new Error('Invalid transaction data');
     }
 
-    const keys = response.transaction.message.accountKeys;
-    const lbPair = keys[3].toString();
-    const tokenX = keys[9].toString();
-    const rawTokenY = keys[12].toString();
+    const keys = response.transaction.message.staticAccountKeys;
     
-    const tokenY = rawTokenY === "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v" 
-      ? "USDC" 
-      : rawTokenY === "So11111111111111111111111111111111111111112"
-      ? "SOL"
-      : "USDC";
+    let lbPair = '';
+    const tokenProgramIndex = keys.findIndex(key => 
+      key.toString() === '11111111111111111111111111111111'
+    );
+    
+    for (let i = tokenProgramIndex; i >= 0; i--) {
+      const key = keys[i].toString();
+      if (await isLbPair(key)) {
+        lbPair = key;
+        break;
+      }
+    }
+    
+    const tokenProgramIndex2 = keys.findIndex(key => 
+      key.toString() === 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
+    );
+    const tokenX = keys[tokenProgramIndex2 + 1].toString();
+    
+    const lastKey = keys[keys.length - 1].toString();
+    let tokenY: "USDC" | "SOL";
+    
+    if (lastKey === "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") {
+      tokenY = "USDC";
+    } else if (lastKey === "So11111111111111111111111111111111111111112") {
+      tokenY = "SOL";
+    } else {
+      throw new Error('Unknown token Y type');
+    }
 
     const info = await helius.rpc.getAsset({
       id: tokenX,
@@ -55,16 +81,19 @@ async function parseTx(signature: string) {
 
     return {
       tokenX,
-      tokenY: tokenY as "USDC" | "SOL",
+      tokenY,
       lbPair,
       tokenXname: info?.content?.metadata.name || "Unknown",
       symbol: info?.content?.metadata.symbol || "Unknown",
     };
+    
   } catch (error) {
     log(`Error parsing transaction ${signature}: ${error}`);
     return null;
   }
 }
+
+
 
 async function main() {
   try {
@@ -97,10 +126,12 @@ async function main() {
   }
 }
 
+
 main().catch(error => {
   log(`Fatal error: ${error}`);
   process.exit(1);
 });
+
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
