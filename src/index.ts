@@ -71,6 +71,7 @@ async function parseTx(signature: string) {
     });
 
     return {
+      tx: signature,
       tokenX,
       tokenY,
       lbPair,

@@ -1,4 +1,5 @@
 interface WebhookPayload {
+  tx: string;
   tokenX: string;
   tokenY: string;
   lbPair: string;
@@ -24,7 +25,7 @@ export async function sendDiscordWebhook(payload: WebhookPayload) {
         value: payload.tokenY,
       },
     ],
-    url: `https://app.meteora.ag/dlmm/${payload.lbPair}`,
+    url: `https://solscan.io/tx/${payload.tx}`,
     color: 3447003,
     timestamp: new Date().toISOString(),
     thumbnail: {
