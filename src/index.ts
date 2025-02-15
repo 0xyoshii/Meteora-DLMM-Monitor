@@ -60,17 +60,8 @@ async function parseTx(signature: string) {
       key.toString() === 'TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA'
     );
     const tokenX = keys[tokenProgramIndex2 + 1].toString();
+    const tokenY = "USDC"
     
-    const lastKey = keys[keys.length - 1].toString();
-    let tokenY: "USDC" | "SOL";
-    
-    if (lastKey === "EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v") {
-      tokenY = "USDC";
-    } else if (lastKey === "So11111111111111111111111111111111111111112") {
-      tokenY = "SOL";
-    } else {
-      throw new Error('Unknown token Y type');
-    }
 
     const info = await helius.rpc.getAsset({
       id: tokenX,
