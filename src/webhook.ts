@@ -1,6 +1,6 @@
 interface WebhookPayload {
   tokenX: string;
-  tokenY: "USDC" | "SOL";
+  tokenY: string;
   lbPair: string;
   tokenXname: string;
   symbol: string;
